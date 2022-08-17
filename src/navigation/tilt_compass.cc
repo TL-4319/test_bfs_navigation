@@ -42,9 +42,7 @@ Eigen::Vector3f TiltCompass(const Eigen::Vector3f &accel,
   /* Roll */
   ypr(2) = asinf(-a(1) / cosf(ypr(1)));
   /* Yaw */
-  ypr(0) = atan2f(m(2) * sinf(ypr(2)) - m(1) * cosf(ypr(2)), m(0) *
-           cosf(ypr(1)) + m(1) * sinf(ypr(1)) * sinf(ypr(2)) + m(2) *
-           sinf(ypr(1)) * cosf(ypr(2)));
+  ypr(0) = 0; /*Set to 0 for indoor cage*/
   return ypr;
 }
 
