@@ -205,11 +205,11 @@ class Ekf15State {
   Eigen::Matrix3f gyro_markov_bias_ = -1.0f / gyro_tau_s_ *
                                       Eigen::Matrix<float, 3, 3>::Identity();
   /* Standard deviation of the GNSS North and East position measurement */
-  float gnss_pos_ne_std_m_ = 3.0f;
+  float gnss_pos_ne_std_m_ = 0.2f;
   /* Standard deviation of the GNSS Down position estimate */
-  float gnss_pos_d_std_m_ = 6.0f;
+  float gnss_pos_d_std_m_ = 0.4f;
   /* Standard deviation of the GNSS North and East velocity measurement */
-  float gnss_vel_ne_std_mps_ = 0.5f;
+  float gnss_vel_ne_std_mps_ = 0.8f;
   /* Standard deviation of the GNSS Down velocity measurement */
   float gnss_vel_d_std_mps_ = 1.0f;
   /*
