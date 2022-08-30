@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.0.1
+- Fixed inline-ness of functions
+
+## v4.0.0
+- Updated function signatures to match MATLAB
+- Added README
+
+## v3.0.0
+- Updated to work with CMake and Arduino build systems
+
 ## v2.0.1
 - Updated to eigen v2.0.0 and units v3.2.0
 

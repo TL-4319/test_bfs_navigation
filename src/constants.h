@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,31 +23,29 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_NAVIGATION_UTILS_H_
-#define INCLUDE_NAVIGATION_UTILS_H_
-
-#include "Eigen/Core"
+#ifndef NAVIGATION_SRC_CONSTANTS_H_ // NOLINT
+#define NAVIGATION_SRC_CONSTANTS_H_
 
 namespace bfs {
-/* Rate of change of LLA given NED velocity */
-Eigen::Vector3f LlaRate(const Eigen::Vector3f &ned_vel,
-                        const Eigen::Vector3d &lla);
-/* Skew symmetric matrix from a given vector w */
-template<typename T>
-Eigen::Matrix<T, 3, 3> Skew(const Eigen::Matrix<T, 3, 1> &w) {
-  Eigen::Matrix<T, 3, 3> c;
-  c(0, 0) =  0.0;
-  c(0, 1) = -w(2);
-  c(0, 2) =  w(1);
-  c(1, 0) =  w(2);
-  c(1, 1) =  0.0;
-  c(1, 2) = -w(0);
-  c(2, 0) = -w(1);
-  c(2, 1) =  w(0);
-  c(2, 2) =  0.0;
-  return c;
-}
+/* Semi-major axis, WGS-84 defined, m */
+static constexpr double SEMI_MAJOR_AXIS_LENGTH_M = 6378137.0;
+/* Flattening */
+static constexpr double FLATTENING = 1.0 / 298.257223563;
+/* Semi-minor axis, m (derived) */
+static constexpr double SEMI_MINOR_AXIS_LENGTH_M = 6356752.3142;
+/* First eccentricity (derived) */
+static constexpr double ECC = 8.1819190842622e-2;
+/* First eccentricity, squared (derived) */
+static constexpr double ECC2 = 6.69437999014e-3;
+/* Angular velocity of the Earth, rad/s */
+static constexpr double WE_RADPS = 7292115.0e-11;
+/* Angular velocity of the Earth according to ICD-GPS-200, rad/s */
+static constexpr double WE_GPS_RADPS = 7292115.1467e-11;
+/* Earth's Gravitational Constant, m^3/s^2 */
+static constexpr double GM_M3PS2 = 3986004.418e8;
+/* Earth's Gravitational Constant according to ICD-GPS-200, m^3/s^2 */
+static constexpr double GM_GPS_M3PS2 = 3986005.0e8;
 
 }  // namespace bfs
 
-#endif  // INCLUDE_NAVIGATION_UTILS_H_
+#endif  // NAVIGATION_SRC_CONSTANTS_H_ NOLINT

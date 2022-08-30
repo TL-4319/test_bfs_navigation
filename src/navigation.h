@@ -2,7 +2,7 @@
 * Brian R Taylor
 * brian.taylor@bolderflight.com
 * 
-* Copyright (c) 2021 Bolder Flight Systems Inc
+* Copyright (c) 2022 Bolder Flight Systems Inc
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the “Software”), to
@@ -23,26 +23,14 @@
 * IN THE SOFTWARE.
 */
 
-#ifndef INCLUDE_NAVIGATION_CONSTANTS_H_
-#define INCLUDE_NAVIGATION_CONSTANTS_H_
+#ifndef NAVIGATION_SRC_NAVIGATION_H_  // NOLINT
+#define NAVIGATION_SRC_NAVIGATION_H_
 
-namespace bfs {
-/* Semi-major axis, WGS-84 defined m */
-static constexpr double SEMI_MAJOR_AXIS_LENGTH_M = 6378137.0;
-/* Flattening, WGS-84 defined */
-static constexpr double FLATTENING = 1.0 / 298.257223563;
-/* Semi-minor axis, m (derived) */
-static constexpr double SEMI_MINOR_AXIS_LENGTH_M = SEMI_MAJOR_AXIS_LENGTH_M *
-                                                   (1.0 - FLATTENING);
-/* First eccentricity, squared (derived) */
-static constexpr double E2 = 2.0 * FLATTENING - FLATTENING * FLATTENING;
-/* Used for Olson's method */
-static constexpr double A1 = SEMI_MAJOR_AXIS_LENGTH_M * E2;
-static constexpr double A2 = A1 * A1;
-static constexpr double A3 = A1 * E2 / 2.0;
-static constexpr double A4 = 2.5 * A2;
-static constexpr double A5 = A1 + A3;
-static constexpr double A6 = 1.0 - E2;
-}  // namespace bfs
+#include "constants.h"  // NOLINT
+#include "ekf_15_state.h"  // NOLINT
+#include "tilt_compass.h"  // NOLINT
+#include "earth_model.h"  // NOLINT
+#include "transforms.h"  // NOLINT
+#include "utils.h"  // NOLINT
 
-#endif  // INCLUDE_NAVIGATION_CONSTANTS_H_
+#endif  // NAVIGATION_SRC_NAVIGATION_H_ NOLINT
