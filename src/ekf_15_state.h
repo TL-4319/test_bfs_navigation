@@ -430,6 +430,7 @@ class Ekf15State {
   Eigen::Vector3d ins_lla_rad_m_;
 };
 
+
 class Ekf15StateGPSheading {
  public:
   Ekf15StateGPSheading() {}
