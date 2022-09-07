@@ -28,7 +28,6 @@
 
 #include "constants.h"  // NOLINT
 #include "ekf_15_state.h"  // NOLINT
-#include "ekf_15_state_dual_gps.h" //NOLINT
 #include "tilt_compass.h"  // NOLINT
 #include "earth_model.h"  // NOLINT
 #include "transforms.h"  // NOLINT
