@@ -143,7 +143,7 @@ class Ekf15State {
   /* Initialize the EKF states */
   void Initialize(const Eigen::Vector3f &accel, const Eigen::Vector3f &gyro,
                   const Eigen::Vector3f &mag, const Eigen::Vector3f &ned_vel,
-                  const Eigen::Vector3d &lla) {
+                  const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
     /* Observation matrix */
     h_.block(0, 0, 5, 5) = Eigen::Matrix<float, 5, 5>::Identity();
     /* Process noise covariance */
@@ -247,7 +247,7 @@ class Ekf15State {
   }
   /* Perform a measurement update */
   void MeasurementUpdate(const Eigen::Vector3f &ned_vel,
-                         const Eigen::Vector3d &lla) {
+                         const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
     /* Y, error between Measures and Outputs */
     y_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_).cast<float>();
     y_.segment(3, 3) = ned_vel - ins_ned_vel_mps_;
@@ -549,7 +549,7 @@ class Ekf15StateGPSheading {
   /* Initialize the EKF states */
   void Initialize(const Eigen::Vector3f &accel, const Eigen::Vector3f &gyro,
                   const Eigen::Vector3f &mag, const Eigen::Vector3f &ned_vel,
-                  const Eigen::Vector3d &lla) {
+                  const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
     /* Observation matrix */
     h_.block(0, 0, 5, 5) = Eigen::Matrix<float, 5, 5>::Identity();
     /* Process noise covariance */
@@ -652,8 +652,7 @@ class Ekf15StateGPSheading {
     p_ = 0.5f * (p_ + p_.transpose().eval());
   }
   /* Perform a measurement update */
-  void MeasurementUpdate(const Eigen::Vector3f &ned_vel,
-                         const Eigen::Vector3d &lla) {
+  void MeasurementUpdate(const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
     /* Y, error between Measures and Outputs */
     y_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_).cast<float>();
     y_.segment(3, 3) = ned_vel - ins_ned_vel_mps_;
@@ -830,6 +829,10 @@ class Ekf15StateGPSheading {
   Eigen::Quaternionf delta_quat_;
   /* Quaternion */
   Eigen::Quaternionf quat_;
+  /* Lever arm from IMU to Moving Base*/
+  Eigen::Vector3f imu_to_base_body_vec_m_ (0, 0.3, 0);
+  /*Moving baseline body vector*/
+  Eigen::Vector3f baseline_body_vec_m_(0, -0.6, 0);
   /*
   * Data
   */
