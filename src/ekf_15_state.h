@@ -551,7 +551,7 @@ class Ekf15StateGPSheading {
                   const Eigen::Vector3f &mag, const Eigen::Vector3f &ned_vel,
                   const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
     /* Observation matrix */
-    h_.block(0, 0, 5, 5) = Eigen::Matrix<float, 5, 5>::Identity();
+    h_.block(0, 0, 3, 3) = Eigen::Matrix<float, 3, 3>::Identity();
     /* Process noise covariance */
     rw_.block(0, 0, 3, 3) = accel_std_mps2_ * accel_std_mps2_ *
                             Eigen::Matrix<float, 3, 3>::Identity();
@@ -567,9 +567,9 @@ class Ekf15StateGPSheading {
     r_.block(0, 0, 2, 2) = gnss_pos_ne_std_m_ * gnss_pos_ne_std_m_ *
                           Eigen::Matrix<float, 2, 2>::Identity();
     r_(2, 2) = gnss_pos_d_std_m_ * gnss_pos_d_std_m_;
-    r_.block(3, 3, 2, 2) = gnss_vel_ne_std_mps_ * gnss_vel_ne_std_mps_ *
+    r_.block(3, 3, 2, 2) = gnss_rel_pos_ne_std_m_ * gnss_rel_pos_ne_std_m_ *
                           Eigen::Matrix<float, 2, 2>::Identity();
-    r_(5, 5) = gnss_vel_d_std_mps_ * gnss_vel_d_std_mps_;
+    r_(5, 5) = gnss_rel_pos_d_std_m_ * gnss_rel_pos_d_std_m_;
     /* Initial covariance estimate */
     p_.block(0, 0, 3, 3) = init_pos_err_std_m_ * init_pos_err_std_m_ *
                           Eigen::Matrix<float, 3, 3>::Identity();
@@ -599,6 +599,7 @@ class Ekf15StateGPSheading {
     ins_gyro_radps_ = gyro - gyro_bias_radps_;
     /* Initialize pitch, roll, and heading */
     ins_ypr_rad_ = TiltCompass(accel, mag);
+    ins_ypr_rad_[2] = std::atan2(rel_pos[1], rel_pos[0]);
     /* Euler to quaternion */
     quat_ = eul2quat(ins_ypr_rad_);
   }
@@ -652,10 +653,21 @@ class Ekf15StateGPSheading {
     p_ = 0.5f * (p_ + p_.transpose().eval());
   }
   /* Perform a measurement update */
-  void MeasurementUpdate(const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
+  void MeasurementUpdate(const Eigen::Vector3f &ned_vel, 
+                          const Eigen::Vector3d &lla, const Eigen::Vector3f &rel_pos) {
+    /* Body to NED transformation from current attitude */
+    t_b2ned = eul2dcm(ins_ypr_rad_).transpose();
+    /* Translate GPS measurement to IMU LLA position */
+    base_to_imu_nav_vec_m_ = t_b2ned * BASE_TO_IMU_BODY_VEC_M_;
+    imu_lla_rad_m_ = ned2lla(base_to_imu_nav_vec_m_.cast<double>(), lla);
+    /* Rotate baseline to NED frame */
+    baseline_nav_vec_m_ = t_b2ned * BASELINE_BODY_VEC_M_;
     /* Y, error between Measures and Outputs */
-    y_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_).cast<float>();
-    y_.segment(3, 3) = ned_vel - ins_ned_vel_mps_;
+    y_.segment(0, 3) = lla2ned(imu_lla_rad_m_, ins_lla_rad_m_).cast<float>();
+    y_.segment(3, 3) = rel_pos - baseline_nav_vec_m_;
+    /* Observation matrix */
+    h_.block(0,2,3,3) = t_b2ned * Skew(BASE_TO_IMU_BODY_VEC_M_);
+    h_.block(2,6,3,3) = t_b2ned * Skew(BASELINE_BODY_VEC_M_);
     /* Innovation covariance */
     s_ = h_ * p_ * h_.transpose() + r_;
     /* Kalman gain */
@@ -829,10 +841,18 @@ class Ekf15StateGPSheading {
   Eigen::Quaternionf delta_quat_;
   /* Quaternion */
   Eigen::Quaternionf quat_;
-  /* Lever arm from IMU to Moving Base*/
-  Eigen::Vector3f imu_to_base_body_vec_m_ (0, 0.3, 0);
+  /* Lever arm from IMU to Moving Base in Body frame*/
+  Eigen::Vector3f BASE_TO_IMU_BODY_VEC_M_ = 
+    (Eigen::Vector3f() << 0.0f, -0.3f, 0.0f).finished();
+  /* Lever arm from IMU to Moving Base in Navigation frame*/
+  Eigen::Vector3f base_to_imu_nav_vec_m_;
   /*Moving baseline body vector*/
-  Eigen::Vector3f baseline_body_vec_m_(0, -0.6, 0);
+  Eigen::Vector3f BASELINE_BODY_VEC_M_ =
+    (Eigen::Vector3f() << 0.0f, -0.6f, 0.0f).finished();
+  /*Moving baseline in nav frame*/
+  Eigen::Vector3f baseline_nav_vec_m_;
+  /*Rotated IMU from Moving Base LLA position*/
+  Eigen::Vector3d imu_lla_rad_m_;
   /*
   * Data
   */
