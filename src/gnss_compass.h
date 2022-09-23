@@ -22,16 +22,32 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 * IN THE SOFTWARE.
 */
+#ifndef NAVIGATION_SRC_GNSS_COMPASS_H_  // NOLINT
+#define NAVIGATION_SRC_GNSS_COMPASS_H_
 
-#ifndef NAVIGATION_SRC_NAVIGATION_H_  // NOLINT
-#define NAVIGATION_SRC_NAVIGATION_H_
+#include "eigen.h"  // NOLINT
+#include "Eigen/Dense"
 
-#include "constants.h"  // NOLINT
-#include "ekf_15_state.h"  // NOLINT
-#include "tilt_compass.h"  // NOLINT
-#include "earth_model.h"  // NOLINT
-#include "transforms.h"  // NOLINT
-#include "utils.h"  // NOLINT
-#include "gnss_compass.h" // NOLINT
+namespace bfs {
+/*
+* Heading from true north using moving baseline
+*/
 
-#endif  // NAVIGATION_SRC_NAVIGATION_H_ NOLINT
+inline float GnssCompass(const Eigen::Vector3f &body_baseline,
+                                   const Eigen::Vector3f &nav_baseline) {
+  Eigen::Vector3f body = body_baseline;
+  Eigen::Vector3f nav = nav_baseline;
+  float heading_rad;
+  float dot_prod = nav.dot(body);
+  if (abs(dot_prod) < 1e-2){
+    return heading_rad;
+  } 
+  Eigen::Vector3f cross_prod = body.cross(nav);
+  /* Heading from true north in radian */
+  heading_rad = atan2f(cross_prod[2], dot_prod);
+  return heading_rad;
+}
+
+}  // namespace bfs
+
+#endif  // NAVIGATION_SRC_GNSS_COMPASS_H_ NOLINT

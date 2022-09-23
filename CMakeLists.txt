@@ -29,6 +29,7 @@ target_link_libraries(navigation
 )
 # Setup include directories 
 target_include_directories(navigation INTERFACE src)
+target_include_directories(navigation INTERFACE /home/tuan/Projects/super/ua_spaaro/flight_code/include)
 
 # Example and unit testing if this project is built separately
 if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME)
