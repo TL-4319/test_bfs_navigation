@@ -39,7 +39,7 @@ inline float GnssCompass(const Eigen::Vector3f &body_baseline,
   Eigen::Vector3f nav = nav_baseline;
   float heading_rad;
   float dot_prod = nav.dot(body);
-  if (abs(dot_prod) < 1e-2){
+  if (abs(dot_prod) < 0.001f){
     return heading_rad;
   } 
   Eigen::Vector3f cross_prod = body.cross(nav);

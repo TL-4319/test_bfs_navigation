@@ -635,7 +635,8 @@ class Ekf15StateGPSheading {
     /* Position update */
     ins_lla_rad_m_ +=
       (dt_s * llarate(ins_ned_vel_mps_.cast<double>(),
-      ins_lla_rad_m_)).cast<double>();
+      ins_lla_rad_m_, AngPosUnit::RAD)).cast<double>();
+    
     /* Jacobian */
     fs_.block(0, 3, 3, 3) = Eigen::Matrix<float, 3, 3>::Identity();
     fs_(5, 2) = -2.0f * G_MPS2<float> / SEMI_MAJOR_AXIS_LENGTH_M;
@@ -682,7 +683,7 @@ class Ekf15StateGPSheading {
     double Rns = SEMI_MAJOR_AXIS_LENGTH_M * (1 - ECC2) /
                (denom * sqrt_denom);
     double Rew = SEMI_MAJOR_AXIS_LENGTH_M / sqrt_denom;
-    ins_lla_rad_m_(2) -= lla(2);
+    ins_lla_rad_m_(2) = lla(2);
     ins_lla_rad_m_(0) += x_(0) / (Rew + ins_lla_rad_m_(2));
     ins_lla_rad_m_(1) += x_(1) / (Rns + ins_lla_rad_m_(2)) /
                          cos(ins_lla_rad_m_(0));
@@ -730,12 +731,13 @@ class Ekf15StateGPSheading {
     double Rns = SEMI_MAJOR_AXIS_LENGTH_M * (1 - ECC2) /
                (denom * sqrt_denom);
     double Rew = SEMI_MAJOR_AXIS_LENGTH_M / sqrt_denom;
-    ins_lla_rad_m_(2) -= x_(2);
     ins_lla_rad_m_(0) += x_(0) / (Rew + ins_lla_rad_m_(2));
     ins_lla_rad_m_(1) += x_(1) / (Rns + ins_lla_rad_m_(2)) /
                          cos(ins_lla_rad_m_(0));
     /* Velocity update */
+    float temp = ins_ned_vel_mps_[2];
     ins_ned_vel_mps_ += x_.segment(3, 3);
+    ins_ned_vel_mps_[2] = temp;
     /* Attitude correction */
     delta_quat_.w() = 1.0f;
     delta_quat_.x() = x_(6);
