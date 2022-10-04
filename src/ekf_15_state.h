@@ -474,6 +474,11 @@ class Ekf15StateGPSheading {
   inline void gnss_rel_pos_d_std_m(const float val) {
     gnss_rel_pos_d_std_m_ = val;
   }
+  inline void antenna_baseline_m (const Eigen::Vector3f val){
+    BASELINE_BODY_VEC_M_ = val;
+    BASELINE_BODY_REV_M_ = -1.0f * BASELINE_BODY_VEC_M_;
+  }
+
   /* Sensor characteristics getters */
   inline float accel_std_mps2() const {
     return accel_std_mps2_;
