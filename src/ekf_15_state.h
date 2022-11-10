@@ -223,7 +223,7 @@ class Ekf15State {
     /* Position update */
     ins_lla_rad_m_ +=
       (dt_s * llarate(ins_ned_vel_mps_.cast<double>(),
-      ins_lla_rad_m_)).cast<double>();
+      ins_lla_rad_m_, AngPosUnit::RAD)).cast<double>();
     /* Jacobian */
     fs_.block(0, 3, 3, 3) = Eigen::Matrix<float, 3, 3>::Identity();
     fs_(5, 2) = -2.0f * G_MPS2<float> / SEMI_MAJOR_AXIS_LENGTH_M;
@@ -252,7 +252,7 @@ class Ekf15State {
   void MeasurementUpdate(const Eigen::Vector3f &ned_vel,
                          const Eigen::Vector3d &lla) {
     /* Y, error between Measures and Outputs */
-    y_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_).cast<float>();
+    y_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_, AngPosUnit::RAD).cast<float>();
     y_.segment(3, 3) = ned_vel - ins_ned_vel_mps_;
     /* Innovation covariance */
     s_ = h_ * p_ * h_.transpose() + r_;
@@ -669,7 +669,7 @@ class Ekf15StateGPSheading {
   void MeasurementUpdate_gnss(const Eigen::Vector3f &ned_vel, 
                           const Eigen::Vector3d &lla) {
     /* Y, error between Measures and Outputs */
-    y_gnss_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_).cast<float>();;
+    y_gnss_.segment(0, 3) = lla2ned(lla, ins_lla_rad_m_, AngPosUnit::RAD).cast<float>();;
     y_gnss_.segment(3, 3) = ned_vel - ins_ned_vel_mps_;
     /* Innovation covariance */
     s_gnss_ = h_gnss_ * p_ * h_gnss_.transpose() + r_gnss_;
